@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState } from 'react';
-import { IconUser, IconPhone, IconMapPin, IconCamera, IconEye, IconEyeOff, IconPlus, IconPencil, IconTrash } from '@tabler/icons-react';
+
+import { IconCamera, IconEye, IconEyeOff, IconPlus, IconPencil, IconTrash } from '@tabler/icons-react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import React from 'react';
 
 // --- TYPES ---
 type FAQ = { id: number; question: string; answer: string; };

@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
 import { IconBriefcase, IconMapPin, IconUser, IconCalendar, IconMail, IconBrandYoutube, IconBrandFacebook, IconBrandLinkedin } from '@tabler/icons-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -10,15 +9,40 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 
-// --- MOCK DATA (You would fetch this data based on the ID) ---
-const profilesData = {
-    '1': { id: 1, name: 'Echo Studio', category: 'Music Production', owner: 'Azhar', jobs: 56, status: 'Active', avatar: 'https://placehold.co/122x122/E4E4E8/000000?text=ES', location: 'Los Angeles, CA', created: 'June 15, 2025', followers: 245, totalJobs: 12, lastActive: '2 days ago', bio: 'Passionate software engineer with 5+ years of experience building scalable web applications and leading development teams. I specialize in modern JavaScript frameworks and cloud technologies.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
-    // Add other profiles here...
+// --- DEFINE TYPES FOR YOUR DATA ---
+type Profile = {
+    id: number;
+    name: string;
+    category: string;
+    owner: string;
+    jobs: number;
+    status: 'Active' | 'Suspended' | 'Pending'; // Use a union type for status
+    avatar: string;
+    location: string;
+    created: string;
+    followers: number;
+    totalJobs: number;
+    lastActive: string;
+    bio: string;
 };
 
-const StatusBadge = ({ status }: { status: string }) => {
-    const styles: { [key: string]: string } = {
+// This tells TypeScript that profilesData is an object where keys are strings
+// and values match the 'Profile' type.
+type ProfilesData = {
+    [key: string]: Profile;
+};
+
+// --- MOCK DATA with the new type ---
+const profilesData: ProfilesData = {
+    '1': { id: 1, name: 'Echo Studio', category: 'Music Production', owner: 'Azhar', jobs: 56, status: 'Active', avatar: 'https://placehold.co/122x122/E4E4E8/000000?text=ES', location: 'Los Angeles, CA', created: 'June 15, 2025', followers: 245, totalJobs: 12, lastActive: '2 days ago', bio: 'Passionate software engineer with 5+ years of experience building scalable web applications and leading development teams. I specialize in modern JavaScript frameworks and cloud technologies.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    '2': { id: 2, name: 'Artisan Crafts', category: 'Arts & Crafts', owner: 'Jane Doe', jobs: 23, status: 'Suspended', avatar: 'https://placehold.co/122x122/FF5722/FFFFFF?text=AC', location: 'Paris, France', created: 'May 20, 2025', followers: 180, totalJobs: 5, lastActive: '1 week ago', bio: 'Dedicated to handcrafted goods and unique artistic creations. We believe in quality and craftsmanship above all else, bringing traditional techniques to modern designs.' },
+};
+
+const StatusBadge = ({ status }: { status: Profile['status'] }) => {
+    const styles: { [key in Profile['status']]: string } = {
         Active: "bg-green-500/20 text-green-400",
+        Suspended: "bg-red-500/20 text-red-400",
+        Pending: "bg-yellow-500/20 text-yellow-400"
     };
     return <div className={`px-4 py-1 text-lg font-medium rounded-full inline-block ${styles[status]}`}>{status}</div>;
 };
@@ -34,20 +58,25 @@ const InfoTag = ({ icon, text }: { icon: React.ElementType, text: string }) => {
 }
 
 function ProfileDetailsPage({ params }: { params: { id: string } }) {
+    // No error now because TypeScript knows `params.id` (a string) can be used to index profilesData
     const profile = profilesData[params.id];
 
     if (!profile) {
-        return <div className="p-8 text-white">Profile not found.</div>;
+        return (
+            <div className="flex items-center justify-center min-h-screen text-white text-2xl" style={{ background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #0F0E13' }}>
+                Profile not found.
+            </div>
+        );
     }
 
     return (
         <div className="p-8 min-h-screen text-white" style={{ background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #0F0E13' }}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Main Content Column */}
-                <div className="lg:col-span-2 space-y-8 relative">
+                <div className="lg:col-span-2 space-y-8">
                     {/* Profile Header */}
                     <div className="flex items-center gap-8">
-                        <Avatar className="h-32 w-32">
+                        <Avatar className="h-32 w-32 border-2 border-gray-600">
                             <AvatarImage src={profile.avatar} alt={profile.name} />
                             <AvatarFallback>{profile.name.substring(0, 2)}</AvatarFallback>
                         </Avatar>
@@ -74,11 +103,11 @@ function ProfileDetailsPage({ params }: { params: { id: string } }) {
                     {/* Contact Information */}
                     <div>
                         <h2 className="text-2xl font-bold mb-4">Contact Information</h2>
-                        <div className="space-y-3 ">
-                            <div className="flex w-full items-center gap-3 p-2 rounded-md bg-[#3A3E41]/50 border border-gray-700 "><IconMail size={20} /><span className="text-gray-400">{profile.name.toLowerCase().replace(' ', '.')}@example.com</span></div>
-                            <div className="flex items-center gap-3 p-2 rounded-md bg-[#3A3E41]/50 border border-gray-700 w-full"><IconBrandYoutube size={20} /><span className="text-gray-400">youtube.com/{profile.name.toLowerCase().replace(' ', '')}</span></div>
-                            <div className="flex items-center gap-3 p-2 rounded-md bg-[#3A3E41]/50 border border-gray-700 w-full"><IconBrandFacebook size={20} /><span className="text-gray-400">facebook.com/{profile.name.toLowerCase().replace(' ', '')}</span></div>
-                            <div className="flex items-center gap-3 p-2 rounded-md bg-[#3A3E41]/50 border border-gray-700 w-full"><IconBrandLinkedin size={20} /><span className="text-gray-400">linkedin.com/in/{profile.name.toLowerCase().replace(' ', '')}</span></div>
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-3 p-2 rounded-md bg-[#3A3E41]/50 border border-gray-700 w-fit"><IconMail size={20} /><span className="text-gray-400">{profile.name.toLowerCase().replace(/ /g, '.')}@example.com</span></div>
+                            <div className="flex items-center gap-3 p-2 rounded-md bg-[#3A3E41]/50 border border-gray-700 w-fit"><IconBrandYoutube size={20} /><span className="text-gray-400">youtube.com/{profile.name.toLowerCase().replace(/ /g, '')}</span></div>
+                            <div className="flex items-center gap-3 p-2 rounded-md bg-[#3A3E41]/50 border border-gray-700 w-fit"><IconBrandFacebook size={20} /><span className="text-gray-400">facebook.com/{profile.name.toLowerCase().replace(/ /g, '')}</span></div>
+                            <div className="flex items-center gap-3 p-2 rounded-md bg-[#3A3E41]/50 border border-gray-700 w-fit"><IconBrandLinkedin size={20} /><span className="text-gray-400">linkedin.com/in/{profile.name.toLowerCase().replace(/ /g, '')}</span></div>
                         </div>
                     </div>
 
@@ -87,11 +116,10 @@ function ProfileDetailsPage({ params }: { params: { id: string } }) {
                         <h2 className="text-2xl font-bold mb-3">Message from Admin</h2>
                         <Textarea placeholder="Write something..." className="bg-[#3A3E41] border-gray-700 min-h-[120px]" />
                     </div>
-
                 </div>
 
                 {/* Right Sidebar Column */}
-                <div className="space-y-8 pt-20">
+                <div className="space-y-8">
                     <Card className="bg-[#3A3E41] border-gray-700 text-white">
                         <CardHeader><CardTitle>Activity Summary</CardTitle></CardHeader>
                         <CardContent className="grid grid-cols-2 gap-y-6 text-sm">
@@ -111,7 +139,7 @@ function ProfileDetailsPage({ params }: { params: { id: string } }) {
                                     <Label htmlFor="posting-permissions" className="font-bold">Posting Permissions</Label>
                                     <p className="text-xs text-gray-400">Allow this business to post jobs.</p>
                                 </div>
-                                <Switch id="posting-permissions" defaultChecked />
+                                <Switch id="posting-permissions" defaultChecked={profile.status === 'Active'} />
                             </div>
                             <div className="flex items-center justify-between">
                                 <div>
@@ -123,14 +151,10 @@ function ProfileDetailsPage({ params }: { params: { id: string } }) {
                         </CardContent>
                     </Card>
 
-
-                </div>
-            </div>
-            <div className=' mt-4 '>
-
-                <div className="max-w-xs flex flex-row items-center justify-between gap-4">
-                    <Button variant="default" className="w-full h-[48px]">Suspend Account</Button>
-                    <Button variant="destructive" className="w-full h-[48px]">Delete Account</Button>
+                    <div className="flex gap-4">
+                        <Button variant="outline" className="w-full h-12">Suspend Account</Button>
+                        <Button variant="destructive" className="w-full h-12">Delete Account</Button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -138,3 +162,17 @@ function ProfileDetailsPage({ params }: { params: { id: string } }) {
 }
 
 export default ProfileDetailsPage;
+
+
+
+// import React from 'react'
+
+// function page() {
+//     return (
+//         <div>
+//             this is profile
+//         </div>
+//     )
+// }
+
+// export default page

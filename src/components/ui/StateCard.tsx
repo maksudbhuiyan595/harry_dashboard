@@ -1,4 +1,4 @@
-const StatCard = ({ title, value, percentage, icon: Icon, iconBgColor, percentageColor }: any) => (
+const StatCard = ({ title, value, percentage, icon: Icon, iconBgColor, percentageColor }: { title: string, value: string | number, percentage: string, icon: React.ElementType, iconBgColor: string, percentageColor: string }) => (
     <div className="flex-1 rounded-lg p-5 shadow-lg" style={{ background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #3A3E41' }}>
         <div className="flex justify-between">
             <div className="flex flex-col gap-4">

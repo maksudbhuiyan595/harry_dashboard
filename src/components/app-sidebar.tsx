@@ -10,7 +10,6 @@ import {
   IconBuildingStore,
   IconCategory,
   IconDashboard,
-  IconFileText,
   IconShieldCheck,
   IconSettings,
   IconUsers,

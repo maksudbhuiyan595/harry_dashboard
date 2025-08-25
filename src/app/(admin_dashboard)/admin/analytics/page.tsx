@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
-import { IconUsers, IconUserCheck, IconActivity, IconEye, IconDashboard, IconUserCircle, IconCategory, IconBuildingSkyscraper, IconBriefcase, IconMessageCircle, IconChartBar, IconBell, IconSettings } from '@tabler/icons-react';
+import { IconUsers, IconUserCheck, IconActivity, IconEye } from '@tabler/icons-react';
 import {
     Table,
     TableBody,
@@ -47,43 +46,6 @@ const StatCard = ({ title, value, icon: Icon, change, changeType }: { title: str
     </Card>
 );
 
-const Sidebar = () => {
-    const navItems = [
-        { name: 'Dashboard Overview', icon: IconDashboard },
-        { name: 'User Management', icon: IconUserCircle },
-        { name: 'Categories', icon: IconCategory },
-        { name: 'Business Profiles', icon: IconBuildingSkyscraper },
-        { name: 'Job Management', icon: IconBriefcase },
-        { name: 'Content Moderation', icon: IconMessageCircle },
-        { name: 'Analytics', icon: IconChartBar, active: true },
-        { name: 'Notification Manager', icon: IconBell },
-        { name: 'Settings', icon: IconSettings },
-    ];
-
-    return (
-        <aside className="w-64 flex-shrink-0 p-6 flex flex-col gap-8" style={{ background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #3A3E41' }}>
-            <div className="text-center">
-                <div className="mx-auto mb-2 h-20 w-20 rounded-full bg-[#E4E4E8]" />
-                <h1 className="text-xl font-bold text-blue-400">Admin Panel</h1>
-            </div>
-            <nav className="flex flex-col gap-3">
-                {navItems.map(item => {
-                    const Icon = item.icon;
-                    return (
-                        <a
-                            key={item.name}
-                            href="#"
-                            className={`flex items-center gap-4 px-4 py-3 rounded-md text-white font-semibold transition-colors ${item.active ? 'bg-[#4593F5]' : 'hover:bg-white/10'}`}
-                        >
-                            <Icon size={22} />
-                            <span>{item.name}</span>
-                        </a>
-                    );
-                })}
-            </nav>
-        </aside>
-    );
-};
 
 
 // --- MAIN PAGE COMPONENT ---

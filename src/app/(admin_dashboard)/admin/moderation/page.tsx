@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
-import { IconSearch, IconCalendar, IconEye, IconChevronLeft, IconChevronRight, IconUser, IconLink, IconX } from '@tabler/icons-react';
+import React, { useState } from 'react';
+import { IconEye, IconX } from '@tabler/icons-react';
 import {
     Table,
     TableBody,

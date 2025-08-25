@@ -84,7 +84,7 @@ function JobApprovalPage() {
                     {/* Job Description */}
                     <div className="space-y-4 text-gray-300 text-sm leading-relaxed">
                         <h4 className="text-xl font-bold text-white">Job Description</h4>
-                        <p>We're looking for a talented Sound Designer to join our team working on film and game projects. The ideal candidate will have experience creating immersive audio experiences and a strong portfolio of previous work.</p>
+                        <p>We are looking for a talented Sound Designer to join our team working on film and game projects. The ideal candidate will have experience creating immersive audio experiences and a strong portfolio of previous work.</p>
 
                         <h5 className="font-semibold text-white pt-2">Responsibilities:</h5>
                         <ul className="list-disc pl-5 space-y-1">

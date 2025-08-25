@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { IconPlus, IconChevronDown, IconCalendar, IconClock, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { IconPlus, IconCalendar, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";

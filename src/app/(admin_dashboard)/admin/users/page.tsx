@@ -56,8 +56,10 @@ const usersData = [
     },
 ];
 
-
-const StatusBadge = ({ status }: any) => {
+type StatusBadgeProps = {
+    status: 'Active' | 'Suspended';
+};
+const StatusBadge = ({ status }: StatusBadgeProps) => {
     const styles = {
         Active: "bg-[#60BD66] text-[#10700B]",
         Suspended: "bg-[#BD6360] text-[#600C0C]",
@@ -79,7 +81,7 @@ const ActionButtons = ({ onView, onEdit, onDelete }: any) => (
     </div>
 );
 
-const UserDetailsModal = ({ user, onClose }: any) => {
+const UserDetailsModal = ({ user, onClose }: { user: any; onClose: () => void }) => {
     if (!user) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45">
@@ -162,7 +164,7 @@ function UserManagementPage() {
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-gray-300">{user.email}</TableCell>
-                                <TableCell><StatusBadge status={user.status} /></TableCell>
+                                <TableCell><StatusBadge status={user.status as any} /></TableCell>
                                 <TableCell className="text-gray-300">{user.joinedDate}</TableCell>
                                 <TableCell>
                                     <ActionButtons

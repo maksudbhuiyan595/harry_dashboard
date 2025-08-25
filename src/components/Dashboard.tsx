@@ -1,14 +1,12 @@
 "use client"; // Add "use client" at the top
 
 import React from "react";
-import dynamic from "next/dynamic"; // Import dynamic from next/dynamic
 import {
     IconUsers,
     IconBriefcase,
     IconFileText,
     IconBuildingStore,
     IconFlag,
-    IconArrowUpRight,
 } from "@tabler/icons-react";
 import StatCard from "./ui/StateCard";
 import RecentActivity from "./ui/RecentAcvity";

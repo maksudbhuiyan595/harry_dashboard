@@ -89,7 +89,7 @@ const AddEditCategoryModal = ({ isOpen, onClose, onSave, categoryToEdit }: { isO
                 <DialogHeader className="text-left mb-4">
                     <DialogTitle className="text-2xl font-bold text-white">{isEditing ? 'Edit Category' : 'Add a New Category'}</DialogTitle>
                     <DialogDescription className="text-gray-400">
-                        {isEditing ? `Make changes to your category here.` : `Enter the name for the new category.`} Click save when you're done.
+                        {isEditing ? `Make changes to your category here.` : `Enter the name for the new category.`} Click save when you are done.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-2">
