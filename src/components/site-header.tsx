@@ -5,6 +5,9 @@ import Image from "next/image"
 import { IconCalendar, IconClock } from "@tabler/icons-react"
 import { SidebarTrigger } from "./ui/sidebar"
 import avater from '../assets/Images/avater.png'
+import { useUserProfileQuery } from "@/app/api/authApi"
+import { imgUrl } from "@/utility/imgUrl"
+import Link from "next/link"
 export function SiteHeader() {
   // State to hold the current date and time
   const [currentDateTime, setCurrentDateTime] = React.useState(new Date())
@@ -32,6 +35,11 @@ export function SiteHeader() {
     minute: "2-digit",
     hour12: true,
   })
+
+  // user profile api 
+
+  const { data } = useUserProfileQuery({});
+
 
   return (
     <header
@@ -64,16 +72,16 @@ export function SiteHeader() {
 
       {/* Right Section: User Info */}
       <div className="flex items-center gap-4">
-        <Image
-          src={avater}
+        <Link href={"/admin/settings"}><Image
+          src={`${imgUrl}/${data?.data?.avatar}`}
           alt="User Avatar"
           width={43}
           height={43}
-          className="rounded-full"
-        />
+          className="rounded-full h-12 w-12 "
+        /></Link>
         <div className="flex flex-col ">
-          <span className="text-base font-bold leading-tight">Harry</span>
-          <span className="text-xs font-medium text-gray-300">Admin</span>
+          <span className="text-base font-bold leading-tight">{data?.data?.name}</span>
+          <span className="text-xs font-medium text-gray-300">{data?.data?.role}</span>
         </div>
       </div>
     </header>

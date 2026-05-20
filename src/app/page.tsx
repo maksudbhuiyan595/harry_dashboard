@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+
 import {
   Card,
   CardContent,
@@ -17,9 +18,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
+import Cookies from "js-cookie";
 // Assuming your logo is in 'src/assets/Images/logo.png'
 import logo from '@/assets/Images/logo.png';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { toast } from 'sonner';
+import { useLoginMutation } from './api/authApi';
 
 function LoginPage() {
   // 1. Create state for all form inputs
@@ -33,22 +37,58 @@ function LoginPage() {
     setPasswordVisible(!passwordVisible);
   };
 
-  // 3. Update the login handler to log state and then redirect
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent the form from reloading the page
+  const [login, { isLoading }] = useLoginMutation();
 
+  // 3. Update the login handler to log state and then redirect
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent the form from reloading the page
     const formData = {
       email,
       password,
-      rememberMe,
     };
 
-    console.log("Login Form Data:", formData); // Log all values to the console
+    try {
 
-    // In a real app, you would validate credentials here
+      const res = await login(formData);
 
-    router.push('/admin'); // Redirect after logging
+      if (res) {
+        toast.success(res?.data?.message)
+        setEmail("");
+        setPassword("");
+        router.push("/admin")
+
+        if (res?.data?.data?.token) {
+          Cookies.set("admin_token", res?.data?.data?.token, {
+            expires: 100, // 7 days
+            path: "/",
+            secure: false,
+          })
+        }
+      }
+
+    } catch (err) {
+      // ❌ Error Handling
+      const error = err as FetchBaseQueryError & { data?: { message?: string } };
+      const message =
+        (error.data?.message as string) || "Something went wrong ❌";
+      toast.error(message);
+
+    }
+
   };
+
+
+
+
+  useEffect(() => {
+    const adminToken = Cookies.get("admin_token"); // ✅ check inside useEffect
+    if (adminToken) {
+      // router.push("/admin");
+      window.location.href = "/admin"
+    }
+  }, [router]);
+
+
 
   return (
     <div
@@ -77,6 +117,7 @@ function LoginPage() {
               <Input
                 type="email"
                 id="email"
+                name='email'
                 placeholder="william047@gmail.com"
                 className="h-12 rounded-lg border-[#D7D7D7] bg-[#0F0E13] text-base"
                 // 2. Link the input value to the state and add onChange
@@ -91,6 +132,7 @@ function LoginPage() {
                 <Input
                   type={passwordVisible ? "text" : "password"}
                   id="password"
+                  name='password'
                   placeholder="********"
                   className="h-12 rounded-lg border-[#D7D7D7] bg-[#0F0E13] text-base pr-10"
                   value={password}
@@ -125,10 +167,13 @@ function LoginPage() {
             </div>
 
             <Button
+              disabled={isLoading}
               type="submit"
-              className="w-full h-14 bg-[#1778F2] text-lg font-bold hover:bg-blue-600"
+              className="w-full cursor-pointer h-14 bg-[#1778F2] text-lg font-bold hover:bg-blue-600"
             >
-              Log in
+              {
+                isLoading ? "loading..." : "Log in"
+              }
             </Button>
           </form>
         </CardContent>

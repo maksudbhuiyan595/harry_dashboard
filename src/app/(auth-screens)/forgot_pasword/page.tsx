@@ -20,6 +20,9 @@ import {
 
 // Assuming your logo is in 'src/assets/Images/logo.png'
 import logo from '@/assets/Images/logo.png';
+import { useSendOtpMutation } from '@/app/api/authApi';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { toast } from 'sonner';
 
 function ForgotPass() {
     // 1. Create state for all form inputs
@@ -27,22 +30,36 @@ function ForgotPass() {
 
     const router = useRouter();
 
+    const [sendOtp] = useSendOtpMutation();
 
 
-
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const formData = {
-            email,
-        };
+        const formData = { email };
 
-        console.log("Login Form Data:", formData);
+        try {
+            const res = await sendOtp(formData).unwrap();
 
-        // In a real app, you would validate credentials here
+            if (res) {
+                toast.success(res?.message);
 
-        router.push('/otp-verify'); // Redirect after logging
+                // Redirect to otp-verify page with email in query
+                router.push(`/otp-verify?email=${encodeURIComponent(email)}`);
+
+                setEmail(""); // Clear input
+            }
+        } catch (err) {
+            const error = err as FetchBaseQueryError & { data?: { message?: string } };
+            const message = error.data?.message || "Something went wrong ❌";
+            toast.error(message);
+        }
     };
+
+
+
+
+
 
     return (
         <div
@@ -83,7 +100,7 @@ function ForgotPass() {
 
                         <Button
                             type="submit"
-                            className="w-full h-14 bg-[#1778F2] text-lg font-bold hover:bg-blue-600"
+                            className="w-full cursor-pointer h-14 bg-[#1778F2] text-lg font-bold hover:bg-blue-600"
                         >
                             Submit
                         </Button>

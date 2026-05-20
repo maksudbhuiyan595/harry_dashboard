@@ -24,14 +24,13 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { toast } from 'sonner';
+import { createAlert } from '@/utility/alert/createAlert';
+import { useAllCategoryQuery, useCategoryDeleteMutation, useCreateCategoryMutation } from '@/app/api/categoryApi';
 
 // --- MOCK DATA ---
-const initialCategories: Category[] = [
-    { id: 1, name: 'Music' },
-    { id: 2, name: 'Arts' },
-    { id: 3, name: 'Technology' },
-    { id: 4, name: 'Sports' },
-];
+
 const initialPreferences: string[] = ['Javascript', 'Typescript', 'React', 'Node.js', 'Python'];
 
 // --- TYPES ---
@@ -55,10 +54,10 @@ const CategoryRow = ({ category, onEdit, onDelete }: { category: Category; onEdi
     <div className="w-full p-4 border border-white/30 rounded-lg flex justify-between items-center transition-all hover:border-white/50">
         <h3 className="text-xl font-semibold text-white">{category.name}</h3>
         <div className="flex items-center gap-4 text-gray-400">
-            <Button variant="outline" size="icon" onClick={() => onEdit(category)}>
+            <Button className=' cursor-pointer ' variant="outline" size="icon" onClick={() => onEdit(category)}>
                 <IconPencil size={20} />
             </Button>
-            <Button variant="destructive" size="icon" onClick={() => onDelete(category.id)}>
+            <Button className=' cursor-pointer ' variant="destructive" size="icon" onClick={() => onDelete(category.id)}>
                 <IconTrash size={20} />
             </Button>
         </div>
@@ -67,6 +66,7 @@ const CategoryRow = ({ category, onEdit, onDelete }: { category: Category; onEdi
 
 const AddEditCategoryModal = ({ isOpen, onClose, onSave, categoryToEdit }: { isOpen: boolean; onClose: () => void; onSave: (c: Partial<Category>) => void; categoryToEdit: Category | null; }) => {
     const [name, setName] = useState('');
+
     const isEditing = !!categoryToEdit;
 
     useEffect(() => {
@@ -115,7 +115,14 @@ const AddEditCategoryModal = ({ isOpen, onClose, onSave, categoryToEdit }: { isO
 
 // --- MAIN PAGE COMPONENT ---
 function ManagePreferencesPage() {
-    const [categories, setCategories] = useState<Category[]>(initialCategories);
+
+    // all category api 
+
+    const { data } = useAllCategoryQuery({})
+
+    const categoryData: Category[] = data?.data || [];
+
+
     const [preferences, setPreferences] = useState<string[]>(initialPreferences);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -137,11 +144,35 @@ function ManagePreferencesPage() {
         setIsModalOpen(true);
     };
 
-    const handleSaveCategory = (savedCategory: Partial<Category>) => {
+    // category create 
+
+    const [createCategory] = useCreateCategoryMutation();
+
+
+    const handleSaveCategory = async (savedCategory: Partial<Category>) => {
         if (savedCategory.id) {
-            setCategories(categories.map(c => c.id === savedCategory.id ? (savedCategory as Category) : c));
+            // setCategories(categories.map(c => c.id === savedCategory.id ? (savedCategory as Category) : c));
         } else {
-            setCategories([...categories, { ...savedCategory, id: Date.now() } as Category]);
+            const payload = {
+                name: savedCategory?.name
+            }
+
+            try {
+                const res = await createAlert();
+                if (res.isConfirmed) {
+                    const res = await createCategory(payload).unwrap();
+                    if (res) {
+                        toast.success(res?.message)
+                    }
+                }
+
+            } catch (err) {
+                // ❌ Error Handling
+                const error = err as FetchBaseQueryError & { data?: { message?: string } };
+                const message =
+                    (error.data?.message as string) || "Something went wrong ❌";
+                toast.error(message);
+            }
         }
     };
 
@@ -149,9 +180,24 @@ function ManagePreferencesPage() {
         setCategoryToDeleteId(id);
         setIsAlertOpen(true);
     };
+    const [categoryDelete] = useCategoryDeleteMutation();
 
-    const handleConfirmDelete = () => {
-        setCategories(categories.filter(c => c.id !== categoryToDeleteId));
+    const handleConfirmDelete = async () => {
+        const id = categoryToDeleteId;
+        try {
+
+            const res = await categoryDelete(id).unwrap();
+
+            if (res) {
+                toast.success(res?.message);
+            }
+
+        } catch (err) {
+            const error = err as FetchBaseQueryError & { data?: { message?: string } };
+            const message =
+                (error.data?.message as string) || "Something went wrong ❌";
+            toast.error(message);
+        }
         setIsAlertOpen(false);
         setCategoryToDeleteId(null);
     };
@@ -174,7 +220,7 @@ function ManagePreferencesPage() {
             <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-white">Manage Categories</h2>
                 <div className="space-y-4">
-                    {categories.map(category => (
+                    {categoryData.map(category => (
                         <CategoryRow
                             key={category.id}
                             category={category}

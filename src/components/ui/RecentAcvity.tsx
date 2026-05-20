@@ -1,11 +1,11 @@
+import { useDashboardOverviewQuery } from "@/app/api/dashboardApi";
+import { RecentActivityType } from "@/utility/type/dashboardType";
+
 const RecentActivity = () => {
-    const userActivity = [
-        { name: "Sarah Johnson", action: "Created new post", time: "2 minutes ago" },
-        { name: "John Doe", action: "Updated profile", time: "5 minutes ago" },
-        { name: "Jane Smith", action: "Commented on a post", time: "10 minutes ago" },
-        { name: "Mike Brown", action: "Shared a job listing", time: "15 minutes ago" },
-        { name: "Emily White", action: "Created new business profile", time: "20 minutes ago" },
-    ];
+
+
+    const { data } = useDashboardOverviewQuery(undefined);
+    const userActivity: RecentActivityType[] = data?.recent_activity || [];
 
     return (
         <div

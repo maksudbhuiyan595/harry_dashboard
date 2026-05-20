@@ -12,53 +12,89 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
+import { useAllNotificationQuery, useReadAllNotificationMutation, useSingleNotificationReadMutation } from '@/app/api/notificationApi';
+import { NotificationType } from '@/utility/type/notificationType';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { toast } from 'sonner';
+import { successMessage } from '@/utility/error/successMessage';
 
-// --- TYPES ---
-type Notification = {
-    id: number;
-    title: string;
-    message: string;
-    to: string;
-    sentAt: string;
-    recipients: number;
-    openRate: number;
-};
 
-// --- MOCK DATA ---
-const sentNotifications: Notification[] = [
-    { id: 1, title: "New Feature: Portfolio Showcase", message: "We’ve added a new portfolio showcase feature for artists!", to: "All Users", sentAt: "2024-01-22 at 10:30 AM", recipients: 12847, openRate: 68 },
-    { id: 2, title: "Scheduled Maintenance Alert", message: "Our services will be temporarily unavailable this Saturday.", to: "Developers", sentAt: "2024-01-20 at 5:00 PM", recipients: 452, openRate: 85 },
-];
+
+
 
 // --- REUSABLE COMPONENTS ---
-const StatCard = ({ title, value, color }: { title: string, value: string | number, color: string }) => (
-    <Card className="flex flex-row items-center justify-between p-4 border-[#989898] " style={{ background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #3A3E41' }}>
-        <div>
-            <p className="text-2xl font-bold text-white">{value}</p>
-            <p className="text-sm text-gray-300">{title}</p>
-        </div>
-        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color }} />
-    </Card>
-);
+// const StatCard = ({ title, value, color }: { title: string, value: string | number, color: string }) => (
+//     <Card className="flex flex-row items-center justify-between p-4 border-[#989898] " style={{ background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #3A3E41' }}>
+//         <div>
+//             <p className="text-2xl font-bold text-white">{value}</p>
+//             <p className="text-sm text-gray-300">{title}</p>
+//         </div>
+//         <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color }} />
+//     </Card>
+// );
 
-const NotificationCard = ({ notification }: { notification: Notification }) => (
-    <Card className="p-4 border-[#989898] text-white" style={{ background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #0F0E13' }}>
-        <div className="flex justify-between items-start">
-            <div>
-                <h3 className="font-bold text-lg">{notification.title}</h3>
-                <p className="text-sm text-gray-300 mt-1">{notification.message}</p>
-                <div className="flex items-center gap-4 text-xs text-gray-400 mt-3">
-                    <span>To: {notification.to}</span>
-                    <span>{notification.sentAt}</span>
+function formatDate(dateString: string) {
+    const date = new Date(dateString);
+
+    const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+
+    hours = hours % 12 || 12;
+
+    return `${month} ${day}, ${year} at ${hours}:${minutes} ${ampm}`;
+}
+
+
+
+const NotificationCard = ({ notification }: { notification: NotificationType }) => {
+    const [singleNotificationRead] = useSingleNotificationReadMutation();
+
+    const notificationRead = async (id: string) => {
+        try {
+            const res = await singleNotificationRead(id);
+            if (res) {
+                toast.success(res?.data?.message)
+            }
+        } catch (err) {
+            const error = err as FetchBaseQueryError & { data?: { message?: string } };
+            const message =
+                (error.data?.message as string) || "Something went wrong ❌";
+            toast.error(message);
+        }
+    }
+
+    return (
+        <Card onClick={() => { notificationRead(notification?.id) }} className={`p-4 border-[#989898] ${notification?.read_at
+            ? "bg-black text-white cursor-not-allowed  "
+            : "bg-white text-black cursor-pointer "
+            } `} >
+            <div className="flex justify-between items-start">
+                <div>
+                    <h3 className="font-bold text-lg">{notification?.data?.title}</h3>
+                    <p className="text-sm text-gray-300 mt-1">{notification?.data?.message}</p>
+                    <div className="flex items-center gap-4 text-xs text-gray-400 mt-3">
+                        {/* <span>To: {"notification.to"}</span> */}
+                        <span>{formatDate(notification?.created_at)}</span>
+                    </div>
                 </div>
+                {/* <div className="text-right">
+                <p className="font-semibold">{"notification.recipients.toLocaleString()"} recipients</p>
+                <p className="text-green-400 text-sm">{"notification.openRate"}% open rate</p>
+            </div> */}
             </div>
-            <div className="text-right">
-                <p className="font-semibold">{notification.recipients.toLocaleString()} recipients</p>
-                <p className="text-green-400 text-sm">{notification.openRate}% open rate</p>
-            </div>
-        </div>
-    </Card>
-);
+        </Card>
+    )
+};
 
 const CreateNotificationModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
     const [title, setTitle] = useState('');
@@ -77,14 +113,14 @@ const CreateNotificationModal = ({ isOpen, onClose }: { isOpen: boolean, onClose
             audience,
             scheduleDate: date ? format(date, 'PPP') : 'Not scheduled',
         };
-        console.log("Sending Notification:", notificationData);
         alert("Notification sent! (Check console for data)");
         onClose();
     };
 
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-3xl border-[#989898] text-white" style={{ background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #3A3E41' }}>
+            {/* <DialogContent className="max-w-3xl border-[#989898] text-white" style={{ background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #3A3E41' }}>
                 <DialogHeader><DialogTitle className="text-2xl">Create Push Notification</DialogTitle></DialogHeader>
                 <div className="py-6 space-y-6">
                     <div className="space-y-2">
@@ -119,7 +155,7 @@ const CreateNotificationModal = ({ isOpen, onClose }: { isOpen: boolean, onClose
                     <Button variant="outline" onClick={onClose}>Cancel</Button>
                     <Button onClick={handleSend} className="bg-[#20C820] hover:bg-green-600">Send Now</Button>
                 </DialogFooter>
-            </DialogContent>
+            </DialogContent> */}
         </Dialog>
     );
 };
@@ -127,39 +163,125 @@ const CreateNotificationModal = ({ isOpen, onClose }: { isOpen: boolean, onClose
 
 function NotificationPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // all notification read
+
+
+    const [readAllNotification] = useReadAllNotificationMutation();
+
+    const allNotificationRead = async () => {
+        try {
+            const res = await readAllNotification(undefined).unwrap();
+            if (res) {
+                successMessage(res?.message)
+            }
+        } catch (err) {
+            const error = err as FetchBaseQueryError & { data?: { message?: string } };
+            const message =
+                (error.data?.message as string) || "Something went wrong ❌";
+            toast.error(message);
+        }
+    }
+
+
+
+
+    // notification api 
+    const { data } = useAllNotificationQuery(undefined);
+    const notificationData: NotificationType[] = data?.data?.data || [];
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    const totalItems = notificationData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    const paginationNotification = notificationData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+
+
+
+
+
     return (
         <div className="p-8 min-h-screen" style={{ background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #0F0E13' }}>
             <header className="flex justify-between items-center mb-8">
                 <h1 className="text-2xl font-bold text-white">Notification Management</h1>
-                <Button onClick={() => setIsModalOpen(true)} className="bg-[#4593F5] hover:bg-blue-600 gap-2">
+                {/* <Button onClick={() => setIsModalOpen(true)} className="bg-[#4593F5] hover:bg-blue-600 gap-2">
                     <IconPlus size={18} />
                     <span>Create Notification</span>
-                </Button>
+                </Button> */}
             </header>
 
-            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCard title="Total Sent" value="1,506" color="#5191F0" />
                 <StatCard title="This week" value={23} color="#F0A151" />
                 <StatCard title="Avg. Open Rate" value="68%" color="#28C93A" />
                 <StatCard title="Active Recipients" value="10.2k" color="#F33535" />
-            </section>
+            </section> */}
 
             <main className="p-6 rounded-lg border border-[#989898]" style={{ background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), #3A3E41' }}>
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-semibold text-white">Sent Notifications</h2>
-                    <Select><SelectTrigger className="w-[180px] bg-[#0F0E13] border-[#989898]"><SelectValue placeholder="This Month" /></SelectTrigger></Select>
+                    {/* <Select><SelectTrigger className="w-[180px] bg-[#0F0E13] border-[#989898]"><SelectValue placeholder="This Month" /></SelectTrigger></Select> */}
+                    <Button onClick={allNotificationRead} className="bg-[#4593F5] hover:bg-blue-600 gap-2">
+                        <span>Read All Notification</span>
+                    </Button>
                 </div>
                 <div className="space-y-4">
-                    {sentNotifications.map(notif => <NotificationCard key={notif.id} notification={notif} />)}
+                    {paginationNotification.map(notif => <NotificationCard key={notif.id} notification={notif} />)}
                 </div>
             </main>
 
-            <div className="flex justify-center items-center gap-4 mt-8">
-                <Button variant="outline" size="icon"><IconChevronLeft size={20} /></Button>
-                <Button>1</Button>
-                <Button variant="outline">2</Button>
-                <Button variant="outline" size="icon"><IconChevronRight size={20} /></Button>
+
+
+            {/* Pagination */}
+            <div className="flex justify-center items-center gap-3 mt-8">
+
+                {/* Prev */}
+                <Button
+                    variant="secondary"
+                    size="icon"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(prev => prev - 1)}
+                    className="disabled:opacity-50"
+                >
+                    <IconChevronLeft size={20} />
+                </Button>
+
+                {/* Page Numbers */}
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map(page => (
+                    <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "secondary"}
+                        onClick={() => setCurrentPage(page)}
+                    >
+                        {page}
+                    </Button>
+                ))}
+
+                {/* Next */}
+                <Button
+                    variant="secondary"
+                    size="icon"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(prev => prev + 1)}
+                    className="disabled:opacity-50"
+                >
+                    <IconChevronRight size={20} />
+                </Button>
+
             </div>
+
+
+
+
+
+
+
+
 
             <CreateNotificationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </div>

@@ -14,14 +14,27 @@ import {
 } from "@/components/ui/card";
 import Image from 'next/image';
 import logo from '@/assets/Images/logo.png';
+import { usePasswordUpdateMutation } from '@/app/api/authApi';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { toast } from 'sonner';
+import { updateAlert } from '@/utility/alert/updateAlert';
 function CreateNewPasswordPage() {
+
+    const [passwordUpdate] = usePasswordUpdateMutation();
+
+
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [newPasswordVisible, setNewPasswordVisible] = useState(false);
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
     const [error, setError] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const payload = {
+        password: newPassword,
+        password_confirmation: confirmPassword
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // Prevents the page from reloading
         setError(''); // Clear previous errors
 
@@ -35,7 +48,25 @@ function CreateNewPasswordPage() {
             return;
         }
 
-        window.location.href = '/admin';
+        try {
+            const res = await updateAlert();
+
+            if (res.isConfirmed) {
+                const res = await passwordUpdate(payload).unwrap();
+                if (res) {
+                    toast.success(res?.data?.message);
+                    window.location.href = '/admin';
+                }
+            }
+
+        } catch (err) {
+            const error = err as FetchBaseQueryError & { data?: { message?: string } };
+            const message = error.data?.message || "Something went wrong ❌";
+            toast.error(message);
+        }
+
+
+
     };
 
     return (
