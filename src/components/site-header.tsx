@@ -4,7 +4,6 @@ import * as React from "react"
 import Image from "next/image"
 import { IconCalendar, IconClock } from "@tabler/icons-react"
 import { SidebarTrigger } from "./ui/sidebar"
-import avater from '../assets/Images/avater.png'
 import { useUserProfileQuery } from "@/app/api/authApi"
 import { imgUrl } from "@/utility/imgUrl"
 import Link from "next/link"

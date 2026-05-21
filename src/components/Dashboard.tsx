@@ -40,8 +40,8 @@ function Dashboard() {
 
                 <StatCard
                     title="Total Users"
-                    value={statasData?.users?.total_users}
-                    percentage={`${statasData?.users?.total_users_growth}%`}
+                    value={statasData?.users?.total_users || 0}
+                    percentage={`${statasData?.users?.total_users_growth || 0}%`}
                     icon={IconUsers}
                     iconBgColor="bg-[#4593F5]"
                     percentageColor={
@@ -53,8 +53,8 @@ function Dashboard() {
 
                 <StatCard
                     title="Active Job Listings"
-                    value={statasData?.jobs?.active_job_listings}
-                    percentage={`${statasData?.jobs?.active_jobs_growth}%`}
+                    value={statasData?.jobs?.active_job_listings || 0}
+                    percentage={`${statasData?.jobs?.active_jobs_growth || 0}%`}
                     icon={IconBriefcase}
                     iconBgColor="bg-[#1BCF30]"
                     percentageColor={
@@ -66,8 +66,8 @@ function Dashboard() {
 
                 <StatCard
                     title="Content Posted"
-                    value={statasData?.content?.content_posted}
-                    percentage={`${statasData?.content?.content_growth}%`}
+                    value={statasData?.content?.content_posted || 0}
+                    percentage={`${statasData?.content?.content_growth || 0}%`}
                     icon={IconFileText}
                     iconBgColor="bg-[#AE2DCE]"
                     percentageColor={
@@ -79,8 +79,8 @@ function Dashboard() {
 
                 <StatCard
                     title="Business Profile"
-                    value={`${statasData?.business?.business_profiles}`}
-                    percentage={`${statasData?.business?.business_growth}%`}
+                    value={`${statasData?.business?.business_profiles || 0}`}
+                    percentage={`${statasData?.business?.business_growth || 0}%`}
                     icon={IconBuildingStore}
                     iconBgColor="bg-[#CC7E11]"
                     percentageColor={
@@ -92,8 +92,8 @@ function Dashboard() {
 
                 <StatCard
                     title="Reported Posts"
-                    value={`${statasData?.reports?.reported_posts}`}
-                    percentage={`${statasData?.reports?.reported_growth}%`}
+                    value={`${statasData?.reports?.reported_posts || 0}`}
+                    percentage={`${statasData?.reports?.reported_growth || 0}%`}
                     icon={IconFlag}
                     iconBgColor="bg-[#F23134]"
                     percentageColor={
