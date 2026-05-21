@@ -25,17 +25,15 @@ function OtpVerifyPage() {
     const searchParams = useSearchParams();
     const [email, setEmail] = useState("");
     useEffect(() => {
-        const queryEmail = searchParams.get("email");
+        const queryEmail = searchParams?.get("email");
         if (queryEmail) {
             setEmail(queryEmail);
         }
     }, [searchParams]);
 
     const handleVerify = (e: React.FormEvent) => {
-        e.preventDefault(); // Prevents the page from reloading
-        // Add your API call logic here to verify the OTP
+        e.preventDefault();
         if (otp.length === 6) {
-            // Redirect to the next page
             window.location.href = '/create-new-password';
         }
     };
