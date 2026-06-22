@@ -6,10 +6,13 @@ import {
     MapPin,
     Clock,
 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function SupportPage() {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        toast.success("Submited Successfully")
+        return e.currentTarget.reset(); // Reset form
 
     }
     return (

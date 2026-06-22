@@ -7,9 +7,9 @@ export const metadata = {
 
 export default function ChildSafetyStandards() {
     // Replace these variables with your exact Google Play Store Listing data
-    const APP_NAME = "[YOUR APP NAME]";
-    const DEVELOPER_NAME = "[YOUR DEVELOPER/COMPANY NAME]";
-    const SAFETY_EMAIL = "safety@yourdomain.com";
+    const APP_NAME = "StudioSpace";
+    const DEVELOPER_NAME = "Harry";
+    const SAFETY_EMAIL = "andrea@studiospace.art";
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800 antialiased selection:bg-red-500 selection:text-white">
