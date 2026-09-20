@@ -49,24 +49,24 @@ function LoginPage() {
 
     try {
 
-      const res = await login(formData);
+      const res = await login(formData).unwrap();
+      console.log(res?.data?.token)
 
-      if (res) {
-        toast.success(res?.data?.message)
+        toast.success(res?.message)
         setEmail("");
         setPassword("");
         router.push("/admin")
 
-        if (res?.data?.data?.token) {
-          Cookies.set("admin_token", res?.data?.data?.token, {
+        if (res?.data?.token) {
+          Cookies.set("admin_token", res?.data?.token, {
             expires: 100, // 7 days
             path: "/",
             secure: false,
           })
         }
-      }
 
     } catch (err) {
+      console.log(err)
       // ❌ Error Handling
       const error = err as FetchBaseQueryError & { data?: { message?: string } };
       const message =
