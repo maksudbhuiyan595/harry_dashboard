@@ -15,8 +15,8 @@ export const userApi = createApi({
     tagTypes: ["user"],
     endpoints: (builder) => ({
         allUser: builder.query({
-            query: () => ({
-                url: `/user-management/get-user?per_page=10&page`,
+            query: (page: number = 1) => ({
+                url: `/user-management/get-user?per_page=10&page=${page}`,
                 method: "GET"
             }),
             providesTags: ["user"]
